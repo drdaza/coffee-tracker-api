@@ -57,32 +57,84 @@ Antes de comenzar, asegúrate de tener instalado:
    
    Edita el archivo `.env` con tu configuración:
    ```env
-   DATABASE_URL="postgresql://username:password@localhost:5432/coffee_tracker"
+   # Para Docker (configuración por defecto)
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/coffee_tracker"
+   
+   # Para PostgreSQL local (ajusta según tu configuración)
+   # DATABASE_URL="postgresql://username:password@localhost:5432/coffee_tracker"
    ```
 
 ## 🗄️ Configuración de Base de Datos
+
+### Opción 1: Usando Docker (Recomendado)
+
+1. **Levantar PostgreSQL con Docker**
+   ```bash
+   # Crear y levantar contenedor de PostgreSQL
+   docker run --name coffee-tracker-db \
+     -e POSTGRES_USER=postgres \
+     -e POSTGRES_PASSWORD=postgres \
+     -e POSTGRES_DB=coffee_tracker \
+     -p 5432:5432 \
+     -d postgres:15
+   ```
+
+2. **Verificar que el contenedor esté corriendo**
+   ```bash
+   docker ps
+   ```
+
+### Opción 2: PostgreSQL Local
 
 1. **Crear la base de datos**
    ```sql
    CREATE DATABASE coffee_tracker;
    ```
 
-2. **Ejecutar migraciones**
+### Configuración de Prisma (Para ambas opciones)
+
+1. **Ejecutar migraciones**
    ```bash
    npx prisma migrate deploy
    ```
 
-3. **Generar cliente de Prisma**
+2. **Generar cliente de Prisma**
    ```bash
    npx prisma generate
    ```
 
-4. **Verificar estado de migraciones**
+3. **Verificar estado de migraciones**
    ```bash
    npx prisma migrate status
    ```
 
+4. **(Opcional) Seed inicial de datos**
+   ```bash
+   npx prisma db seed
+   ```
+
 ## ▶️ Ejecutar el Proyecto
+
+### 🚀 Inicio Rápido (Todo en uno)
+
+```bash
+# 1. Levantar base de datos con Docker
+docker run --name coffee-tracker-db \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=coffee_tracker \
+  -p 5432:5432 \
+  -d postgres:15
+
+# 2. Aplicar migraciones
+npx prisma migrate deploy
+
+# 3. Generar cliente de Prisma
+npx prisma generate
+
+# 4. Iniciar el servidor en modo desarrollo
+pnpm run start:dev
+```
 
 ### Desarrollo
 ```bash
@@ -222,6 +274,33 @@ prisma/
 ```
 
 ## 🔧 Comandos Útiles
+
+### Docker
+
+```bash
+# Levantar contenedor de PostgreSQL
+docker run --name coffee-tracker-db \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=coffee_tracker \
+  -p 5432:5432 \
+  -d postgres:15
+
+# Ver contenedores corriendo
+docker ps
+
+# Parar contenedor
+docker stop coffee-tracker-db
+
+# Iniciar contenedor existente
+docker start coffee-tracker-db
+
+# Eliminar contenedor
+docker rm coffee-tracker-db
+
+# Conectar a la base de datos
+docker exec -it coffee-tracker-db psql -U postgres -d coffee_tracker
+```
 
 ### Prisma
 
