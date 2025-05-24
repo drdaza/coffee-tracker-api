@@ -1,98 +1,366 @@
+# ☕ Coffee Tracker API
+
+Una API REST construida con NestJS y PostgreSQL para gestionar usuarios y cafés con funcionalidad de soft delete.
+
+## 📋 Tabla de Contenidos
+
+- [Descripción](#descripción)
+- [Tecnologías](#tecnologías)
+- [Prerrequisitos](#prerrequisitos)
+- [Instalación](#instalación)
+- [Configuración de Base de Datos](#configuración-de-base-de-datos)
+- [Ejecutar el Proyecto](#ejecutar-el-proyecto)
+- [Entidades](#entidades)
+- [API Endpoints](#api-endpoints)
+- [Testing](#testing)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+
+## 📖 Descripción
+
+Coffee Tracker API es una aplicación backend que permite gestionar usuarios y diferentes tipos de café. Implementa un patrón de "soft delete" para mantener la integridad de datos históricos, donde los registros se marcan como eliminados en lugar de ser removidos físicamente de la base de datos.
+
+## 🚀 Tecnologías
+
+- **Framework**: [NestJS](https://nestjs.com/) - Framework progresivo de Node.js
+- **Base de Datos**: [PostgreSQL](https://www.postgresql.org/)
+- **ORM**: [Prisma](https://www.prisma.io/)
+- **Lenguaje**: [TypeScript](https://www.typescriptlang.org/)
+- **Validación**: [class-validator](https://github.com/typestack/class-validator)
+- **Transformación**: [class-transformer](https://github.com/typestack/class-transformer)
+
+## 📋 Prerrequisitos
+
+Antes de comenzar, asegúrate de tener instalado:
+
+- [Node.js](https://nodejs.org/) (versión 18 o superior)
+- [pnpm](https://pnpm.io/) (gestor de paquetes)
+- [PostgreSQL](https://www.postgresql.org/) (versión 12 o superior)
+- [Git](https://git-scm.com/)
+
+## 🛠️ Instalación
+
+1. **Clonar el repositorio**
+   ```bash
+   git clone https://github.com/drdaza/coffee-tracker-api.git
+   cd coffee-tracker-api
+   ```
+
+2. **Instalar dependencias**
+   ```bash
+   pnpm install
+   ```
+
+3. **Configurar variables de entorno**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edita el archivo `.env` con tu configuración:
+   ```env
+   # Para Docker (configuración por defecto)
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/coffee_tracker"
+   
+   # Para PostgreSQL local (ajusta según tu configuración)
+   # DATABASE_URL="postgresql://username:password@localhost:5432/coffee_tracker"
+   ```
+
+## 🗄️ Configuración de Base de Datos
+
+### Opción 1: Usando Docker (Recomendado)
+
+1. **Levantar PostgreSQL con Docker**
+   ```bash
+   # Crear y levantar contenedor de PostgreSQL
+   docker run --name coffee-tracker-db \
+     -e POSTGRES_USER=postgres \
+     -e POSTGRES_PASSWORD=postgres \
+     -e POSTGRES_DB=coffee_tracker \
+     -p 5432:5432 \
+     -d postgres:15
+   ```
+
+2. **Verificar que el contenedor esté corriendo**
+   ```bash
+   docker ps
+   ```
+
+### Opción 2: PostgreSQL Local
+
+1. **Crear la base de datos**
+   ```sql
+   CREATE DATABASE coffee_tracker;
+   ```
+
+### Configuración de Prisma (Para ambas opciones)
+
+1. **Ejecutar migraciones**
+   ```bash
+   npx prisma migrate deploy
+   ```
+
+2. **Generar cliente de Prisma**
+   ```bash
+   npx prisma generate
+   ```
+
+3. **Verificar estado de migraciones**
+   ```bash
+   npx prisma migrate status
+   ```
+
+4. **(Opcional) Seed inicial de datos**
+   ```bash
+   npx prisma db seed
+   ```
+
+## ▶️ Ejecutar el Proyecto
+
+### 🚀 Inicio Rápido (Todo en uno)
+
+```bash
+# 1. Levantar base de datos con Docker
+docker run --name coffee-tracker-db \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=coffee_tracker \
+  -p 5432:5432 \
+  -d postgres:15
+
+# 2. Aplicar migraciones
+npx prisma migrate deploy
+
+# 3. Generar cliente de Prisma
+npx prisma generate
+
+# 4. Iniciar el servidor en modo desarrollo
+pnpm run start:dev
+```
+
+### Desarrollo
+```bash
+# Modo desarrollo con recarga automática
+pnpm run start:dev
+```
+
+### Producción
+```bash
+# Compilar para producción
+pnpm run build
+
+# Ejecutar en modo producción
+pnpm run start:prod
+```
+
+El servidor estará disponible en: `http://localhost:3000`
+
+## 🏗️ Entidades
+
+### 👤 User (Usuario)
+Representa a los usuarios del sistema.
+
+**Campos:**
+- `id`: UUID único
+- `name`: Nombre del usuario
+- `email`: Email único del usuario
+- `password`: Contraseña del usuario
+- `deleted`: Soft delete flag (boolean)
+- `createdAt`: Fecha de creación
+- `updatedAt`: Fecha de última actualización
+- `coffees`: Relación many-to-many con Coffee
+
+### ☕ Coffee (Café)
+Representa los diferentes tipos de café disponibles.
+
+**Campos:**
+- `id`: UUID único
+- `name`: Nombre del café
+- `price`: Precio en centavos (número entero)
+- `deleted`: Soft delete flag (boolean)
+- `createdAt`: Fecha de creación
+- `updatedAt`: Fecha de última actualización
+- `users`: Relación many-to-many con User
+
+## 🔌 API Endpoints
+
+### Usuarios
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `POST` | `/users` | Crear nuevo usuario |
+| `GET` | `/users` | Obtener todos los usuarios activos |
+| `GET` | `/users/:id` | Obtener usuario por ID |
+| `PATCH` | `/users/:id` | Actualizar usuario |
+| `DELETE` | `/users/:id` | Soft delete de usuario |
+
+### Cafés
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `POST` | `/coffees` | Crear nuevo café |
+| `GET` | `/coffees` | Obtener todos los cafés activos |
+| `GET` | `/coffees/:id` | Obtener café por ID |
+| `PATCH` | `/coffees/:id` | Actualizar café |
+| `DELETE` | `/coffees/:id` | Soft delete de café |
+
+### Ejemplos de Payloads
+
+**Crear Usuario:**
+```json
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "password": "securePassword123"
+}
+```
+
+**Crear Café:**
+```json
+{
+  "name": "Cappuccino",
+  "price": 350
+}
+```
+
+**Actualizar Café:**
+```json
+{
+  "name": "Cappuccino Premium",
+  "price": 400
+}
+```
+
+## 🧪 Testing
+
+```bash
+# Tests unitarios
+pnpm run test
+
+# Tests e2e
+pnpm run test:e2e
+
+# Cobertura de tests
+pnpm run test:cov
+```
+
+## 📁 Estructura del Proyecto
+
+```
+src/
+├── users/
+│   ├── dto/
+│   │   ├── create-user.dto.ts
+│   │   └── update-user.dto.ts
+│   ├── users.controller.ts
+│   ├── users.service.ts
+│   └── users.module.ts
+├── coffees/
+│   ├── dto/
+│   │   ├── create-coffee.dto.ts
+│   │   └── update-coffee.dto.ts
+│   ├── coffees.controller.ts
+│   ├── coffees.service.ts
+│   └── coffees.module.ts
+├── app.module.ts
+└── main.ts
+
+prisma/
+├── schema.prisma
+└── migrations/
+    ├── 20250519201758_init/
+    ├── 20250520200002_add_unique_email/
+    ├── 20250521200915_add_deleted_user_atribute/
+    ├── 20250521201247_add_deleted_user_atribute_asdas/
+    └── 20250524212114_add_coffee_soft_delete/
+```
+
+## 🔧 Comandos Útiles
+
+### Docker
+
+```bash
+# Levantar contenedor de PostgreSQL
+docker run --name coffee-tracker-db \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=coffee_tracker \
+  -p 5432:5432 \
+  -d postgres:15
+
+# Ver contenedores corriendo
+docker ps
+
+# Parar contenedor
+docker stop coffee-tracker-db
+
+# Iniciar contenedor existente
+docker start coffee-tracker-db
+
+# Eliminar contenedor
+docker rm coffee-tracker-db
+
+# Conectar a la base de datos
+docker exec -it coffee-tracker-db psql -U postgres -d coffee_tracker
+```
+
+### Prisma
+
+```bash
+# Crear nueva migración
+npx prisma migrate dev --name nombre_migracion
+
+# Aplicar migraciones en producción
+npx prisma migrate deploy
+
+# Resetear base de datos (¡CUIDADO!)
+npx prisma migrate reset
+
+# Ver estado de migraciones
+npx prisma migrate status
+
+# Generar cliente
+npx prisma generate
+
+# Abrir Prisma Studio
+npx prisma studio
+```
+
+### Desarrollo
+
+```bash
+# Linter
+pnpm run lint
+
+# Formatear código
+pnpm run format
+
+# Construir proyecto
+pnpm run build
+```
+
+## 📝 Notas Importantes
+
+1. **Soft Delete**: Todos los endpoints de eliminación implementan soft delete, marcando registros como `deleted: true` en lugar de eliminarlos físicamente.
+
+2. **Validaciones**: Todos los DTOs incluyen validaciones usando decoradores de `class-validator`.
+
+3. **Relaciones**: Existe una relación many-to-many entre User y Coffee para futuras funcionalidades.
+
+4. **Precios**: Los precios se almacenan en centavos como números enteros para evitar problemas de precisión decimal.
+
+## 🤝 Contribuir
+
+1. Fork el proyecto
+2. Crea una rama feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -m 'Añadir nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+
+---
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  Desarrollado con ❤️ y ☕ usando NestJS
 </p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
