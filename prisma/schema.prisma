@@ -20,6 +20,7 @@ model Coffee {
   price     Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deleted   Boolean @default(false)
   users     User[]   // Many-to-many relation with User
 }
 
