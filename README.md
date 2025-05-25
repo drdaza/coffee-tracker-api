@@ -12,7 +12,6 @@ Una API REST construida con NestJS y PostgreSQL para gestionar usuarios y cafés
 - [Ejecutar el Proyecto](#ejecutar-el-proyecto)
 - [Entidades](#entidades)
 - [API Endpoints](#api-endpoints)
-- [Testing](#testing)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 
 ## 📖 Descripción
@@ -229,19 +228,6 @@ Representa los diferentes tipos de café disponibles.
 }
 ```
 
-## 🧪 Testing
-
-```bash
-# Tests unitarios
-pnpm run test
-
-# Tests e2e
-pnpm run test:e2e
-
-# Cobertura de tests
-pnpm run test:cov
-```
-
 ## 📁 Estructura del Proyecto
 
 ```
@@ -354,10 +340,6 @@ pnpm run build
 3. Commit tus cambios (`git commit -m 'Añadir nueva funcionalidad'`)
 4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
 5. Abre un Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
 
 ---
 
