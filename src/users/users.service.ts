@@ -2,9 +2,17 @@ import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/com
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaClient } from 'generated/prisma';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService extends PrismaClient implements OnModuleInit {
+
+  constructor(
+    private readonly jwtService: JwtService,
+  ) {
+    super();
+  }
 
   private readonly logger = new Logger(UsersService.name);
 
@@ -13,6 +21,11 @@ export class UsersService extends PrismaClient implements OnModuleInit {
     this.logger.log('Connected to database');
   }
   async create(createUserDto: CreateUserDto) {
+
+    const { password, ...userData } = createUserDto;
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const getUser = await this.user.findUnique({
       where: {
@@ -23,10 +36,21 @@ export class UsersService extends PrismaClient implements OnModuleInit {
     if (getUser) {
       throw new Error('User already exists');
     }
-    const user = this.user.create({
-      data: createUserDto,
+    const user = await this.user.create({
+      data: {
+        ...userData,
+        password: hashedPassword,
+      },
     });
-    return user;
+    return {
+      ...user,
+      token: this.getJwtToken({ id: user.id }),
+    };
+  }
+
+  private getJwtToken(payload: { id: string }): string {
+    const token = this.jwtService.sign(payload);
+    return token;
   }
 
   async findAll() {
@@ -55,6 +79,12 @@ export class UsersService extends PrismaClient implements OnModuleInit {
       name: user.name, 
       email: user.email
     };
+  }
+
+  async findOneByEmail(email: string) {
+    return this.user.findUnique({
+      where: { email, deleted: false },
+    });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
