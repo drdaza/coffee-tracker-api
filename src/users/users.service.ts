@@ -87,6 +87,12 @@ export class UsersService extends PrismaClient implements OnModuleInit {
     });
   }
 
+  async findOneById(id: string) {
+    return this.user.findUnique({
+      where: { id, deleted: false },
+    });
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     await this.findOne(id);
 

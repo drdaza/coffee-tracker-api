@@ -14,6 +14,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  USER
+}
+
 model Coffee {
   id        String   @id @default(uuid())
   name      String
@@ -29,6 +34,7 @@ model User {
   name      String
   email     String @unique
   password  String
+  role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deleted   Boolean @default(false)
