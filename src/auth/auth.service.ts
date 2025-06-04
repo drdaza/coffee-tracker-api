@@ -61,7 +61,7 @@ export class AuthService {
         }
       }
     
-      private getJwtToken(payload: { id: string }): string {
+      public getJwtToken(payload: { id: string }): string {
         const token = this.jwtService.sign(payload);
         return token;
       }

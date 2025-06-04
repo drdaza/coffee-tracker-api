@@ -88,9 +88,17 @@ export class UsersService extends PrismaClient implements OnModuleInit {
   }
 
   async findOneById(id: string) {
-    return this.user.findUnique({
-      where: { id, deleted: false },
-    });
+    try {
+      console.log(id);
+      
+      return this.user.findUnique({
+        where: { id, deleted: false },
+      });
+    } catch (error) {
+      console.log(error);
+      
+      throw new NotFoundException('User not found');
+    }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
