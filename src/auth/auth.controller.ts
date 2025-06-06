@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginUserDto } from './dto/login-user-dto.interface';
+import { LoginUserDto, RefreshTokenDto } from './dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { GetUser } from './decorators/get-user.decorator';
@@ -12,6 +12,11 @@ export class AuthController {
   @Post('login')  
   login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Post('refresh')
+  refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refreshTokens(refreshTokenDto.refreshToken);
   }
   @Get('check-token') 
   @UseGuards(JwtAuthGuard)

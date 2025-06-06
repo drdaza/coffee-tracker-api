@@ -3,4 +3,6 @@ export interface AuthResponse {
     name: string;
     email: string;
     token: string;
+    refreshToken: string;
+    expiresIn: number;
   }
