@@ -30,13 +30,27 @@ model Coffee {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String @unique
-  password  String
-  role      Role     @default(USER)
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  password      String
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deleted       Boolean        @default(false)
+  coffees       Coffee[]       // Many-to-many relation with Coffee
+  refreshTokens RefreshToken[] // One-to-many relation with RefreshToken
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  deviceId  String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deleted   Boolean @default(false)
-  coffees   Coffee[] // Many-to-many relation with Coffee
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("refresh_tokens")
 }
