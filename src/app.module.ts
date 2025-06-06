@@ -1,10 +1,21 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { CoffeesModule } from './coffees/coffees.module';
-
+import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { envs } from './config/envs';
 
 @Module({
-  imports: [UsersModule, CoffeesModule],
+  imports: [
+    JwtModule.register({
+      global: true,
+      secret: envs.JWT_SECRET,
+      signOptions: { expiresIn: '24h' },
+    }),
+    UsersModule, 
+    CoffeesModule, 
+    AuthModule
+  ],
   controllers: [],
   providers: [],
 })
