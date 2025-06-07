@@ -4,6 +4,7 @@ import { CoffeesModule } from './coffees/coffees.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { envs } from './config/envs';
+import { TastingModule } from './tasting/tasting.module';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { envs } from './config/envs';
     }),
     UsersModule, 
     CoffeesModule, 
-    AuthModule
+    AuthModule, TastingModule
   ],
   controllers: [],
   providers: [],

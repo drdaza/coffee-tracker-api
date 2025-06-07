@@ -2,11 +2,16 @@ import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/com
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { PrismaClient } from 'generated/prisma';
+import { CreateTastingDto } from 'src/tasting/dto/create-tasting.dto';
+import { TastingService } from 'src/tasting/tasting.service';
 
 @Injectable()
 export class CoffeesService extends PrismaClient implements OnModuleInit {
 
   private readonly logger = new Logger(CoffeesService.name);
+  constructor(private readonly tastingService: TastingService) {
+    super();
+  }
 
   async onModuleInit() {
     await this.$connect();
@@ -79,5 +84,14 @@ export class CoffeesService extends PrismaClient implements OnModuleInit {
         deleted: true,
       },
     }); 
+  }
+
+  async addTasting(coffeeId: string, tasting: CreateTastingDto, userId: string) {
+    return this.tastingService.create(tasting, coffeeId, userId);
+  }
+
+  async getTastingsByCoffeeId(coffeeId: string) {
+    await this.findOne(coffeeId);
+    return this.tastingService.findAllByCoffeeId(coffeeId);
   }
 } 
