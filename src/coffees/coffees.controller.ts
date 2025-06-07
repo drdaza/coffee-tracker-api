@@ -4,6 +4,7 @@ import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { Auth, GetUser } from '../auth/decorators';
 import { ValidRoles } from '../auth/interfaces';
+import { CreateTastingDto } from 'src/tasting/dto/create-tasting.dto';
 
 @Controller('coffees')
 export class CoffeesController {
@@ -16,8 +17,15 @@ export class CoffeesController {
     return this.coffeesService.create(createCoffeeDto);
   }
 
+  @Post(':coffeeId/tasting')
+  @Auth()
+  addTasting(@Param('coffeeId') coffeeId: string, @Body() createTastingDto: CreateTastingDto, @GetUser() user: any) {
+    return this.coffeesService.addTasting(coffeeId, createTastingDto, user.id);
+  }
+
   // Ruta pública - cualquiera puede ver todos los cafés
   @Get()
+  @Auth()
   findAll() {
     return this.coffeesService.findAll();
   }
@@ -27,6 +35,12 @@ export class CoffeesController {
   @Auth()
   findOne(@Param('id') id: string, @GetUser() user: any) {
     return this.coffeesService.findOne(id);
+  }
+
+  @Get(':coffeeId/tasting')
+  @Auth()
+  getTastingsByCoffee(@Param('coffeeId') coffeeId: string) {
+    return this.coffeesService.getTastingsByCoffeeId(coffeeId);
   }
 
   // Solo usuarios autenticados pueden actualizar sus propios cafés

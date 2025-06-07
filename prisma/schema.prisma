@@ -23,10 +23,41 @@ model Coffee {
   id        String   @id @default(uuid())
   name      String
   price     Int
+  description String?
+  rate        Int?     @default(1)
+  image       String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deleted   Boolean @default(false)
   users     User[]   // Many-to-many relation with User
+  tastings  Tasting[]
+}
+
+model Tasting {
+  id        String   @id @default(uuid())
+  
+  aroma     Int?     @default(0)// Puntuación del aroma
+  flavor    Int?     @default(0) // Puntuación del sabor
+  body      Int?     @default(0) // Puntuación del cuerpo
+  acidity   Int?     @default(0) // Puntuación de acidez
+  balance   Int?     @default(0) // Puntuación de balance
+  aftertaste Int?    @default(0) // Puntuación del retrogusto
+  
+  overallScore Float? @default(0) 
+  
+  notes     String[]  @default([])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  coffeeId  String   
+  coffee    Coffee   @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
+  
+  userId    String   
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Índice compuesto para evitar catas duplicadas del mismo usuario al mismo café en el mismo momento
+  @@unique([coffeeId, userId, createdAt])
 }
 
 model User {
@@ -39,6 +70,7 @@ model User {
   updatedAt     DateTime       @updatedAt
   deleted       Boolean        @default(false)
   coffees       Coffee[]       // Many-to-many relation with Coffee
+  tastings      Tasting[]
   refreshTokens RefreshToken[] // One-to-many relation with RefreshToken
 }
 
